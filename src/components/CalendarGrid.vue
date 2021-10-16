@@ -66,6 +66,7 @@ import debounce from 'debounce'
 import { getLocale } from '@nextcloud/l10n'
 import { getYYYYMMDDFromFirstdayParam } from '../utils/date.js'
 import { getFirstDayOfWeekFromMomentLocale } from '../utils/moment.js'
+// eslint-disable-next-line
 
 export default {
 	name: 'CalendarGrid',
@@ -177,6 +178,9 @@ export default {
 			const calendarApi = this.$refs.fullCalendar.getApi()
 			calendarApi.refetchEvents()
 		}, 50),
+		$route() {
+			this.c3gGetElements()
+		},
 	},
 	/**
 	 * FullCalendar 5 is using calculated px values for the width
@@ -202,6 +206,7 @@ export default {
 
 			resizeObserver.observe(this.$refs.fullCalendar.$el)
 		}
+		this.c3gGetElements()
 	},
 	async created() {
 		this.updateTodayJob = setInterval(() => {
@@ -271,6 +276,30 @@ export default {
 				this.$store.dispatch('setInitialView', { initialView })
 			}
 		}, 5000),
+		c3gGetElements() {
+			const wasm = import('../../@h008/qreki/qreki.js')
+			wasm.then((js) => {
+				const elements = document.querySelectorAll('.fc a[data-navlink]')
+				for (const elm of elements) {
+					const mappedElm = JSON.parse(elm.getAttribute('data-navlink')).date
+					if (mappedElm) {
+						let insElm = document.getElementById(`c3g__rokuyou_${mappedElm}`)
+						if (!insElm) {
+							insElm = document.createElement('span')
+							insElm.setAttribute('id', `c3g__rokuyou_${mappedElm}`)
+							insElm.classList.add('c3g__rokuyou')
+							const ymd = mappedElm.split('-')
+							if (ymd.length === 3) {
+								const qreki = js.default.js.from_ymd(`${ymd[0]}`, `${ymd[1]}`, `${ymd[2]}`)
+								insElm.textContent = qreki.qr
+								elm.appendChild(insElm)
+							}
+						}
+
+					}
+				}
+			})
+		},
 	},
 }
 </script>
@@ -286,5 +315,15 @@ export default {
 .calendar-grid-checkbox-checked {
 	border-color: transparent;
 	@include iconfont('checkbox-checked');
+}
+
+.c3g__rokuyou {
+	margin-inline: 4px;
+	padding-inline: 4px;
+	outline-style:solid;
+	outline-color:wheat;
+	outline-width: thin;
+	font-size:small;
+	background-color: burlywood;
 }
 </style>
