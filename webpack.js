@@ -56,5 +56,6 @@ webpackConfig.plugins.push(
 	}),
 	new webpack.IgnorePlugin(/^\.\/locale(s)?$/, /(moment)$/)
 )
+webpackConfig.experiments = {asyncWebAssembly: true}
 
 module.exports = webpackConfig
