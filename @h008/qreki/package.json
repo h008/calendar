@@ -1,0 +1,17 @@
+{
+  "name": "@h008/qreki",
+  "collaborators": [
+    "h008<h_008@mac.com>"
+  ],
+  "description": "wasm-tuto",
+  "version": "0.1.4",
+  "files": [
+    "qreki_bg.wasm",
+    "qreki.js",
+    "qreki_bg.js",
+    "qreki.d.ts"
+  ],
+  "module": "qreki.js",
+  "types": "qreki.d.ts",
+  "sideEffects": false
+}
