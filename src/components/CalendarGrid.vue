@@ -320,10 +320,7 @@ export default {
 .c3g__rokuyou {
 	margin-inline: 4px;
 	padding-inline: 4px;
-	outline-style:solid;
-	outline-color:wheat;
-	outline-width: thin;
 	font-size:small;
-	background-color: burlywood;
+	background-color: wheat;
 }
 </style>
