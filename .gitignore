@@ -71,10 +71,7 @@ vendor/
 .kdev
 *.kdev4
 
-build/
-js/
 node_modules/
-src/fonts
 *.clover
 
 # just sane ignores
