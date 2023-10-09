@@ -232,7 +232,7 @@ export default {
 				// FIXME: the formatter config can also be moved to data() again (as it is static)
 				getWeek(date) {
 					return momentFactory(date).format('w')
-				}
+				},
 			}
 		},
 	},

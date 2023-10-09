@@ -22,8 +22,7 @@
   -->
 
 <template>
-	<FullCalendar ref="fullCalendar"
-		:options="options" />
+	<FullCalendar ref="fullCalendar" :options="options" />
 </template>
 
 <script>
@@ -66,6 +65,9 @@ import debounce from 'debounce'
 import { getLocale } from '@nextcloud/l10n'
 import { getYYYYMMDDFromFirstdayParam } from '../utils/date.js'
 import { getFirstDayOfWeekFromMomentLocale } from '../utils/moment.js'
+
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
 
 export default {
 	name: 'CalendarGrid',
@@ -181,6 +183,9 @@ export default {
 			const calendarApi = this.$refs.fullCalendar.getApi()
 			calendarApi.refetchEvents()
 		}, 50),
+		$route() {
+			this.c3gGetElements()
+		},
 	},
 	/**
 	 * FullCalendar 5 is using calculated px values for the width
@@ -206,6 +211,7 @@ export default {
 
 			resizeObserver.observe(this.$refs.fullCalendar.$el)
 		}
+		this.c3gGetElements()
 	},
 	async created() {
 		this.updateTodayJob = setInterval(() => {
@@ -275,6 +281,46 @@ export default {
 				this.$store.dispatch('setInitialView', { initialView })
 			}
 		}, 5000),
+
+		async c3gGetElements() {
+			// sv-SEロケールはYYYY-MM-DD形式の日付文字列を戻す
+			const today = new Date().toLocaleDateString('lt')
+			const initialData = this.options?.initialDate ? this.options.initialDate : today
+			const [year, month] = initialData.split('-')
+			const url = generateUrl(`/apps/welcomapp/getcalendar/${year}/${month}`)
+			await axios.get(url).then(async (resp) => {
+				const elements = document.querySelectorAll('.fc-daygrid-day:not(.fc-day-other)')
+
+				// const elements = document.querySelectorAll('.fc-grid-day-number')
+				elements.forEach((elm) => {
+					const mappedElm = elm.getAttribute('data-date')
+					const childElm = elm.querySelector('.fc-daygrid-day-number')
+					if (mappedElm) {
+						let insElm = document.getElementById(`c3g__rokuyou_${mappedElm}`)
+						if (!insElm) {
+							insElm = document.createElement('span')
+							insElm.setAttribute('id', `c3g__rokuyou_${mappedElm}`)
+							insElm.classList.add('c3g__rokuyou')
+						}
+						const [year, month, day] = mappedElm.split('-')
+						if (year && month && day) {
+							const qreki = resp.data.find((row) => {
+								return (
+									Number(row.year) === Number(year)
+									&& Number(row.month) === Number(month)
+									&& Number(row.day) === Number(day)
+								)
+							})
+							insElm.textContent = qreki?.rokuyou
+							childElm.appendChild(insElm)
+						}
+
+					}
+				})
+
+			})
+
+		},
 	},
 }
 </script>
@@ -290,5 +336,12 @@ export default {
 .calendar-grid-checkbox-checked {
 	border-color: transparent;
 	@include iconfont('checkbox-checked');
+}
+
+.c3g__rokuyou {
+	margin-inline: 4px;
+	padding-inline: 4px;
+	font-size: small;
+	background-color: wheat;
 }
 </style>

@@ -68,7 +68,9 @@
 										</div>
 
 										<div>
-											<div class="item-name">{{ item.name }}</div>
+											<div class="item-name">
+												{{ item.name }}
+											</div>
 											<div v-if="item.subline" class="item-subline">
 												{{ item.subline }}
 											</div>
